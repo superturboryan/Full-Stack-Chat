@@ -24,6 +24,19 @@ app.get("/messages", function (req, res) {
    res.send(JSON.stringify(response))
 })
 
+app.get("/delete-messages", function (req, res) {
+
+   let sessionId = req.cookies.sid
+
+   let currentUsername = sessions[sessionId]
+
+   messages = messages.filter(message => {
+      return message.username !== currentUsername
+   })
+
+   res.send(JSON.stringify({ success: true }))
+})
+
 app.post("/newmessage", upload.none(), (req, res) => {
    console.log("*** inside new message") /
       console.log("body", req.body)

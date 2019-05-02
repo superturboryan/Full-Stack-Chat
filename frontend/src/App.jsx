@@ -10,9 +10,11 @@ class UnconnectedApp extends Component {
    render = () => {
       if (this.props.loggedInProp) {
          return (<div>
+            <div>Current user: {this.props.currentUserProp}</div>
             <button onClick={this.handleSignout}>Sign out!</button>
             <ChatMessages />
             <ChatForm />
+            <button onClick={this.handleDelete}> Delete my messages! </button>
          </div>)
       }
       return (
@@ -28,9 +30,17 @@ class UnconnectedApp extends Component {
       this.props.dispatch({ type: "signout" })
    }
 
+   handleDelete = () => {
+      fetch("http://localhost:4000/delete-messages", {
+         method: "GET",
+         credentials: "include"
+      })
+   }
+
 }
 let mapStateToProps = state => {
    return {
+      currentUserProp: state.currentUser,
       loggedInProp: state.loggedIn
    }
 }

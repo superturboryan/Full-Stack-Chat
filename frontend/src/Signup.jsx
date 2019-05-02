@@ -51,7 +51,8 @@ class UnconnectedSignup extends Component {
                .then(x => { return x.text() })
                .then(responseBody => {
                   this.props.dispatch({
-                     type: "login-success"
+                     type: "login-success",
+                     user: this.state.username
                   })
                   console.log("User signed up and logged in!")
                })

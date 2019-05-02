@@ -2,22 +2,45 @@ import { createStore } from "redux"
 let reducer = (state, action) => {
 
    if (action.type === "login-success") {
-      return { ...state, loggedIn: true }
+      console.log("Current user", state.currentUser)
+      return {
+         ...state,
+         loggedIn: true,
+         currentUser: action.user
+      }
    }
    if (action.type === "set-messages") {
-      return { ...state, msgs: action.messages }
+      return {
+         ...state,
+         msgs: action.messages
+      }
    }
    if (action.type === "signout") {
       console.log("Signing out!")
-      return { ...state, loggedIn: false }
+      return {
+         ...state,
+         loggedIn: false,
+         currentUser: ""
+      }
    }
+
+   // if (action.type === "set-user") {
+   //    return {
+   //       ...state,
+   //       currentUser: action.user
+   //    }
+   // }
 
    return state
 }
 
 const store = createStore(
    reducer,
-   { msgs: [], loggedIn: false },
+   {
+      msgs: [],
+      loggedIn: false,
+      currentUser: ""
+   },
    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )
 
