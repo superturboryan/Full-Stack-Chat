@@ -1,11 +1,14 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 
+let updater;
+
 class UnconnectedChatMessages extends Component {
 
    componentDidMount = () => {
 
       let updater = () => {
+
          fetch("http://localhost:4000/messages", {
             method: "GET",
             credentials: "include"
@@ -22,7 +25,12 @@ class UnconnectedChatMessages extends Component {
             })
       }
 
-      setInterval(updater, 500)
+      this.updateInterval = setInterval(updater, 500)
+   }
+
+   componentWillUnmount = () => {
+      console.log("Stop updating messages!")
+      clearInterval(this.updateInterval)
    }
 
    render = () => {
@@ -35,7 +43,8 @@ class UnconnectedChatMessages extends Component {
 }
 let mapStateToProps = state => {
    return {
-      messages: state.msgs
+      messages: state.msgs,
+      loggedInProp: state.loggedIn
    }
 }
 
