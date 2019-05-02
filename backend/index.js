@@ -18,7 +18,10 @@ app.get("/messages", function (req, res) {
    if (sessions[sessionId] === undefined) {
       res.send(JSON.stringify("Intruder detected - ACCESS DENIED!"))
    }
-   res.send(JSON.stringify(messages))
+   //Get only the last twenty messages
+   let response = messages.slice(-20)
+
+   res.send(JSON.stringify(response))
 })
 
 app.post("/newmessage", upload.none(), (req, res) => {
