@@ -8,6 +8,7 @@ import ChatForm from './ChatForm.jsx'
 class UnconnectedApp extends Component {
 
    render = () => {
+
       if (this.props.loggedInProp) {
          return (<div>
             <div>Current user: {this.props.currentUserProp}</div>

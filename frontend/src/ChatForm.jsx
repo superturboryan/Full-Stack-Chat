@@ -25,13 +25,14 @@ class ChatForm extends Component {
          body: data,
          credentials: "include"
       })
+      this.setState({ message: "" })
    }
 
    render = () => {
       return (
          <div>
             <form onSubmit={this.handleSubmit}>
-               <input onChange={this.handleMessageChange} type="text" />
+               <input onChange={this.handleMessageChange} type="text" value={this.state.message} />
                <input type="submit" />
             </form>
          </div>)

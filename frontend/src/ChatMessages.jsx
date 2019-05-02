@@ -36,8 +36,9 @@ class UnconnectedChatMessages extends Component {
    render = () => {
       let msgToElement = e => (
          <li>
-            {e.username}: {e.message}
-            <div>-{e.timeStamp}</div>
+            <div>{e.username}:</div>
+            <div>{e.message}</div>
+            <div>@{e.timeStamp}</div>
          </li>
       )
 
