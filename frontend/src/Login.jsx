@@ -40,6 +40,15 @@ class UnconnectedLogin extends Component {
                type: "login-success",
                user: this.state.username
             })
+            let messageData = new FormData()
+            let loginMessage = `User ${this.state.username} has logged in!`
+            messageData.append("msg", loginMessage)
+            messageData.append("type", "login")
+            fetch("http://localhost:4000/newmessage", {
+               method: "POST",
+               body: messageData,
+               credentials: "include"
+            })
          })
    }
    render = () => {

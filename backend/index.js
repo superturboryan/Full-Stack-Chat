@@ -27,9 +27,7 @@ app.get("/messages", function (req, res) {
 app.get("/delete-messages", function (req, res) {
 
    let sessionId = req.cookies.sid
-
    let currentUsername = sessions[sessionId]
-
    messages = messages.filter(message => {
       return message.username !== currentUsername
    })
@@ -44,6 +42,12 @@ app.post("/newmessage", upload.none(), (req, res) => {
    let username = sessions[sessionId]
    console.log("username", username)
    let msg = req.body.msg
+   if (req.body.type === "login") {
+      let newMsg = { message: msg }
+      messages = messages.concat(newMsg)
+      res.send(JSON.stringify({ success: true }))
+      return
+   }
    let newMsg = { username: username, message: msg }
    console.log("new message", newMsg)
    messages = messages.concat(newMsg)

@@ -17,6 +17,7 @@ class ChatForm extends Component {
       console.log("form submitted")
       let data = new FormData()
       data.append("msg", this.state.message)
+      data.append("type", "regular")
       fetch("http://localhost:4000/newmessage", {
          method: "POST",
          body: data,
