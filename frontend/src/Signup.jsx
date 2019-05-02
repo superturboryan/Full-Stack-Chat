@@ -1,5 +1,7 @@
 import React, { Component } from "react"
-class Signup extends Component {
+import { connect } from "react-redux"
+
+class UnconnectedSignup extends Component {
    constructor(props) {
       super(props)
       this.state = {
@@ -32,11 +34,27 @@ class Signup extends Component {
          .then(responseBody => {
             console.log("responseBody from signup", responseBody)
             let body = JSON.parse(responseBody)
-            console.log("parsed body", body)
             if (!body.success) {
                alert("Signup failed! Try something original...")
                return
             }
+            console.log("parsed body", body)
+
+            let loginData = new FormData()
+            loginData.append("username", this.state.username)
+            loginData.append("password", this.state.password)
+            fetch("http://localhost:4000/login", {
+               method: "POST",
+               body: loginData,
+               credentials: "include"
+            })
+               .then(x => { return x.text() })
+               .then(responseBody => {
+                  this.props.dispatch({
+                     type: "login-success"
+                  })
+                  console.log("User signed up and logged in!")
+               })
          })
    }
 
@@ -52,4 +70,7 @@ class Signup extends Component {
       )
    }
 }
+
+let Signup = connect()(UnconnectedSignup)
+
 export default Signup 
