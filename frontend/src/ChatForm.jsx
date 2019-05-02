@@ -1,14 +1,17 @@
 import React, { Component } from "react"
 
 class ChatForm extends Component {
+
    constructor(props) {
       super(props)
       this.state = { message: "" }
    }
+
    handleMessageChange = event => {
       console.log("new message", event.target.value)
       this.setState({ message: event.target.value })
    }
+
    handleSubmit = event => {
       event.preventDefault()
       console.log("form submitted")
@@ -20,6 +23,7 @@ class ChatForm extends Component {
          credentials: "include"
       })
    }
+
    render = () => {
       return (
          <div>

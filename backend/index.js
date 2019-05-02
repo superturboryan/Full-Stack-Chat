@@ -12,6 +12,12 @@ let sessions = {}
 let messages = []
 
 app.get("/messages", function (req, res) {
+
+   let sessionId = req.cookies.sid
+
+   if (sessions[sessionId] === undefined) {
+      res.send(JSON.stringify("Intruder detected - ACCESS DENIED!"))
+   }
    res.send(JSON.stringify(messages))
 })
 
@@ -48,17 +54,19 @@ app.post("/login", upload.none(), (req, res) => {
    res.send(JSON.stringify({ success: false }))
 })
 
-let generateId = () => {
-   return "" + Math.floor(Math.random() * 100000000)
-}
-
 app.post("/signup", upload.none(), (req, res) => {
    console.log("**** I'm in the signup endpoint")
    console.log("this is the body", req.body)
    let username = req.body.username
    let enteredPassword = req.body.password
-   passwords[username] = enteredPassword
+   console.log()
+   if (passwords[username] !== undefined) {
+      console.log("Username already taken!")
+      res.send(JSON.stringify({ success: false }))
+      return
+   }
    console.log("passwords object", passwords)
+   passwords[username] = enteredPassword
    res.send(JSON.stringify({ success: true }))
 })
 
@@ -66,3 +74,7 @@ app.post("/signup", upload.none(), (req, res) => {
 app.listen(4000, () => {
    console.log("Running on port 4000")
 })
+
+let generateId = () => {
+   return "" + Math.floor(Math.random() * 100000000)
+}

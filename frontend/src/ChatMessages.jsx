@@ -2,9 +2,14 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 
 class UnconnectedChatMessages extends Component {
+
    componentDidMount = () => {
+
       let updater = () => {
-         fetch("http://localhost:4000/messages")
+         fetch("http://localhost:4000/messages", {
+            method: "GET",
+            credentials: "include"
+         })
             .then(response => { return response.text() })
             .then(responseBody => {
                console.log("response from messages", responseBody)
@@ -16,10 +21,12 @@ class UnconnectedChatMessages extends Component {
                })
             })
       }
+
       setInterval(updater, 500)
    }
+
    render = () => {
-      let msgToElement = e => <li> {e.username}:{e.message} </li> 0
+      let msgToElement = e => <li> {e.username}:{e.message} </li>
       return (
          <div>
             <ul>{this.props.messages.map(msgToElement)}</ul>
@@ -31,5 +38,7 @@ let mapStateToProps = state => {
       messages: state.msgs
    }
 }
+
 let Chat = connect(mapStateToProps)(UnconnectedChatMessages)
+
 export default Chat 

@@ -24,8 +24,20 @@ class Signup extends Component {
       let data = new FormData()
       data.append("username", this.state.username)
       data.append("password", this.state.password)
-      fetch("http://localhost:4000/signup",
-         { method: "POST", body: data })
+      fetch("http://localhost:4000/signup", {
+         method: "POST",
+         body: data
+      })
+         .then(x => { return x.text() })
+         .then(responseBody => {
+            console.log("responseBody from signup", responseBody)
+            let body = JSON.parse(responseBody)
+            console.log("parsed body", body)
+            if (!body.success) {
+               alert("Signup failed! Try something original...")
+               return
+            }
+         })
    }
 
    render = () => {
