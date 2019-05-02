@@ -42,13 +42,16 @@ app.post("/newmessage", upload.none(), (req, res) => {
    let username = sessions[sessionId]
    console.log("username", username)
    let msg = req.body.msg
+   let timeStamp = req.body.timeStamp
+
+   //Check is message type is login or not
    if (req.body.type === "login") {
-      let newMsg = { message: msg }
+      let newMsg = { message: msg, timeStamp: timeStamp }
       messages = messages.concat(newMsg)
       res.send(JSON.stringify({ success: true }))
       return
    }
-   let newMsg = { username: username, message: msg }
+   let newMsg = { username: username, message: msg, timeStamp: timeStamp }
    console.log("new message", newMsg)
    messages = messages.concat(newMsg)
    console.log("updated messages", messages)

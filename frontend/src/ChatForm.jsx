@@ -18,6 +18,8 @@ class ChatForm extends Component {
       let data = new FormData()
       data.append("msg", this.state.message)
       data.append("type", "regular")
+      let time = new Date().toLocaleTimeString()
+      data.append("timeStamp", time)
       fetch("http://localhost:4000/newmessage", {
          method: "POST",
          body: data,

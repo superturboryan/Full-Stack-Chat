@@ -42,6 +42,8 @@ class UnconnectedLogin extends Component {
             })
             let messageData = new FormData()
             let loginMessage = `User ${this.state.username} has logged in!`
+            let timeStamp = new Date().toLocaleTimeString()
+            messageData.append("timeStamp", timeStamp)
             messageData.append("msg", loginMessage)
             messageData.append("type", "login")
             fetch("http://localhost:4000/newmessage", {
