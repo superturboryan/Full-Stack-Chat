@@ -55,6 +55,17 @@ class UnconnectedSignup extends Component {
                      user: this.state.username
                   })
                   console.log("User signed up and logged in!")
+                  let messageData = new FormData()
+                  let loginMessage = `User ${this.state.username} has signed up and logged in for the first time!`
+                  let timeStamp = new Date().toLocaleTimeString()
+                  messageData.append("timeStamp", timeStamp)
+                  messageData.append("msg", loginMessage)
+                  messageData.append("type", "login")
+                  fetch("http://localhost:4000/newmessage", {
+                     method: "POST",
+                     body: messageData,
+                     credentials: "include"
+                  })
                })
          })
    }

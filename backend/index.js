@@ -46,7 +46,7 @@ app.post("/newmessage", upload.none(), (req, res) => {
 
    //Check is message type is login or not
    if (req.body.type === "login") {
-      let newMsg = { message: msg, timeStamp: timeStamp }
+      let newMsg = { message: msg, timeStamp: timeStamp, username: "SYSTEM" }
       messages = messages.concat(newMsg)
       res.send(JSON.stringify({ success: true }))
       return
