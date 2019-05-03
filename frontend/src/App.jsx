@@ -5,6 +5,8 @@ import Signup from './Signup.jsx'
 import ChatMessages from './ChatMessages.jsx'
 import ChatForm from './ChatForm.jsx'
 
+import { ipAddress } from './data.js'
+
 class UnconnectedApp extends Component {
 
    render = () => {
@@ -32,21 +34,21 @@ class UnconnectedApp extends Component {
 
    handleSignout = () => {
       this.props.dispatch({ type: "signout" })
-      fetch("http://localhost:4000/signout", {
+      fetch(ipAddress + "/signout", {
          method: "GET",
          credentials: "include"
       })
    }
 
    handleDelete = () => {
-      fetch("http://localhost:4000/delete-messages", {
+      fetch(ipAddress + "/delete-messages", {
          method: "GET",
          credentials: "include"
       })
    }
 
    checkLoggedInStatus = () => {
-      fetch("http://localhost:4000/check-logged-in-status", {
+      fetch(ipAddress + "/check-logged-in-status", {
          method: "GET",
          credentials: "include"
       })

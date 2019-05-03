@@ -1,5 +1,7 @@
 import React, { Component } from "react"
 
+import { ipAddress } from './data.js'
+
 class ChatForm extends Component {
 
    constructor(props) {
@@ -20,7 +22,7 @@ class ChatForm extends Component {
       data.append("type", "regular")
       let time = new Date().toLocaleTimeString()
       data.append("timeStamp", time)
-      fetch("http://localhost:4000/newmessage", {
+      fetch(ipAddress + "/newmessage", {
          method: "POST",
          body: data,
          credentials: "include"

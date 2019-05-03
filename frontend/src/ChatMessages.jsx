@@ -1,6 +1,8 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 
+import { ipAddress } from './data.js'
+
 let updater;
 
 class UnconnectedChatMessages extends Component {
@@ -9,7 +11,7 @@ class UnconnectedChatMessages extends Component {
 
       let updater = () => {
 
-         fetch("http://localhost:4000/messages", {
+         fetch(ipAddress + "/messages", {
             method: "GET",
             credentials: "include"
          })

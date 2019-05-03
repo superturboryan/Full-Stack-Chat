@@ -1,5 +1,6 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
+import { ipAddress } from "./data";
 
 class UnconnectedSignup extends Component {
    constructor(props) {
@@ -26,7 +27,7 @@ class UnconnectedSignup extends Component {
       let data = new FormData()
       data.append("username", this.state.username)
       data.append("password", this.state.password)
-      fetch("http://localhost:4000/signup", {
+      fetch(ipAddress + "/signup", {
          method: "POST",
          body: data
       })
@@ -43,7 +44,7 @@ class UnconnectedSignup extends Component {
             let loginData = new FormData()
             loginData.append("username", this.state.username)
             loginData.append("password", this.state.password)
-            fetch("http://localhost:4000/login", {
+            fetch(ipAddress + "/login", {
                method: "POST",
                body: loginData,
                credentials: "include"
@@ -61,7 +62,7 @@ class UnconnectedSignup extends Component {
                   messageData.append("timeStamp", timeStamp)
                   messageData.append("msg", loginMessage)
                   messageData.append("type", "login")
-                  fetch("http://localhost:4000/newmessage", {
+                  fetch(ipAddres + "/newmessage", {
                      method: "POST",
                      body: messageData,
                      credentials: "include"
