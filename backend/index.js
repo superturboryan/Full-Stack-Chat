@@ -11,6 +11,23 @@ let passwords = {}
 let sessions = {}
 let messages = []
 
+app.get("/signout", function (req, res) {
+   console.log("Deleting cookie from sessions object:", req.cookies.sid)
+   delete sessions[req.cookies.sid]
+   res.send(JSON.stringify({ success: false }))
+})
+
+app.get("/check-logged-in-status", function (req, res) {
+
+   console.log("This is the current cookie", req.cookies.sid ? req.cookies.sid : "NO COOKIE")
+   //Check if cookie being sent is part of sessions object
+   if (sessions[req.cookies.sid] !== undefined) {
+      res.send(JSON.stringify({ success: true, user: sessions[req.cookies.sid] }))
+      return
+   }
+   res.send(JSON.stringify({ success: false }))
+})
+
 app.get("/messages", function (req, res) {
 
    let sessionId = req.cookies.sid

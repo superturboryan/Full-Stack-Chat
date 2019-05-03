@@ -2,6 +2,7 @@ import { createStore } from "redux"
 let reducer = (state, action) => {
 
    if (action.type === "login-success") {
+
       console.log("Current user", state.currentUser)
       return {
          ...state,
@@ -23,13 +24,6 @@ let reducer = (state, action) => {
          currentUser: ""
       }
    }
-
-   // if (action.type === "set-user") {
-   //    return {
-   //       ...state,
-   //       currentUser: action.user
-   //    }
-   // }
 
    return state
 }

@@ -9,14 +9,17 @@ class UnconnectedApp extends Component {
 
    render = () => {
 
+      this.checkLoggedInStatus()
+
       if (this.props.loggedInProp) {
-         return (<div>
-            <div>Current user: {this.props.currentUserProp}</div>
-            <button onClick={this.handleSignout}>Sign out!</button>
-            <ChatMessages />
-            <ChatForm />
-            <button onClick={this.handleDelete}> Delete my messages! </button>
-         </div>)
+         return (
+            <div>
+               <div>Current user: {this.props.currentUserProp}</div>
+               <button onClick={this.handleSignout}>Sign out!</button>
+               <ChatMessages />
+               <ChatForm />
+               <button onClick={this.handleDelete}> Delete my messages! </button>
+            </div>)
       }
       return (
          <div>
@@ -29,6 +32,10 @@ class UnconnectedApp extends Component {
 
    handleSignout = () => {
       this.props.dispatch({ type: "signout" })
+      fetch("http://localhost:4000/signout", {
+         method: "GET",
+         credentials: "include"
+      })
    }
 
    handleDelete = () => {
@@ -36,6 +43,25 @@ class UnconnectedApp extends Component {
          method: "GET",
          credentials: "include"
       })
+   }
+
+   checkLoggedInStatus = () => {
+      fetch("http://localhost:4000/check-logged-in-status", {
+         method: "GET",
+         credentials: "include"
+      })
+         .then(x => { return x.text() })
+         .then(responseBody => {
+            let body = JSON.parse(responseBody)
+            if (!body.success) {
+               console.log("No cookie found, did not auto-login")
+               return
+            }
+            this.props.dispatch({
+               type: "login-success",
+               user: body.user
+            })
+         })
    }
 
 }
