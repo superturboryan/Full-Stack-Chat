@@ -5,7 +5,7 @@ let upload = multer()
 let app = express()
 let cookieParser = require('cookie-parser')
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }))
+app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
 
 let passwords = {}
 let sessions = {}

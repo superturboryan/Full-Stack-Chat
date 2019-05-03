@@ -62,7 +62,7 @@ class UnconnectedSignup extends Component {
                   messageData.append("timeStamp", timeStamp)
                   messageData.append("msg", loginMessage)
                   messageData.append("type", "login")
-                  fetch(ipAddres + "/newmessage", {
+                  fetch(ipAddress + "/newmessage", {
                      method: "POST",
                      body: messageData,
                      credentials: "include"
