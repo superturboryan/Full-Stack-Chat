@@ -111,8 +111,8 @@ app.post("/signup", upload.none(), (req, res) => {
 })
 
 
-app.listen(4000, () => {
-   console.log("Running on port 4000")
+app.listen(4000, "0.0.0.0", () => {
+   console.log("Running on port 4000 , 0.0.0.0")
 })
 
 let generateId = () => {
