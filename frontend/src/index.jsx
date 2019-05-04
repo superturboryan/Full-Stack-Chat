@@ -8,6 +8,7 @@ import "./main.css"
 ReactDOM.render(
    <Provider store={store}>
       <App />
+      <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet"></link>
    </Provider>,
    document.getElementById("root")
 ) 
