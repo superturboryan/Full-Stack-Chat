@@ -17,10 +17,9 @@ class UnconnectedChatMessages extends Component {
          })
             .then(response => { return response.text() })
             .then(responseBody => {
-               console.log("response from messages", responseBody)
+               // console.log("response from messages", responseBody)
                let parsed = JSON.parse(responseBody)
-
-               console.log("parsed", parsed)
+               // console.log("parsed", parsed)
 
                this.props.dispatch({
                   type: "set-messages",
