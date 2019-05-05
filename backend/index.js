@@ -16,6 +16,7 @@ let chatDB
 let messagesCollection
 
 MongoClient.connect(url, (err, allDbs) => {
+   if (err) throw err;
    chatDB = allDbs.db("Chat-DB")
    messagesCollection = chatDB.collection("Messages")
 })
