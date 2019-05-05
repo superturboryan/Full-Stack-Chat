@@ -35,8 +35,14 @@ let sessions = {}
 let messages = []
 
 app.get("/signout", function (req, res) {
+   //Remove sessionID from local sessions object
    console.log("Deleting cookie from sessions object:", req.cookies.sid)
    delete sessions[req.cookies.sid]
+   //Remove entry from sessions collection in db
+   sessionsCollection.remove({ sessionId: req.cookies.sid }, (err, result) => {
+      if (err) throw err;
+      console.log("Successfully removed entry from sessions collection!")
+   })
    res.send(JSON.stringify({ success: false }))
 })
 
@@ -84,6 +90,15 @@ app.get("/delete-messages", function (req, res) {
    res.send(JSON.stringify({ success: true }))
 })
 
+app.get("/clear-all-messages", function (req, res) {
+
+   messagesCollection.remove({}, (err, result) => {
+      if (err) throw err;
+      console.log("Removing all messages from messages collection on remote database!")
+   })
+   res.send(JSON.stringify({ success: true }))
+})
+
 app.post("/newmessage", upload.none(), (req, res) => {
    console.log("*** inside new message") /
       console.log("body", req.body)
@@ -119,8 +134,6 @@ app.post("/newmessage", upload.none(), (req, res) => {
 })
 
 app.post("/login", upload.none(), (req, res) => {
-   console.log("**** I'm in the login endpoint")
-   console.log("this is the parsed body", req.body)
    let username = req.body.username
    let enteredPassword = req.body.password
    let expectedPassword = passwords[username]
@@ -144,11 +157,8 @@ app.post("/login", upload.none(), (req, res) => {
 })
 
 app.post("/signup", upload.none(), (req, res) => {
-   console.log("**** I'm in the signup endpoint")
-   console.log("this is the body", req.body)
    let username = req.body.username
    let enteredPassword = req.body.password
-   console.log()
    if (passwords[username] !== undefined) {
       console.log("Username already taken!")
       res.send(JSON.stringify({ success: false }))
@@ -159,7 +169,7 @@ app.post("/signup", upload.none(), (req, res) => {
    res.send(JSON.stringify({ success: true }))
 })
 
-
+//USE WITH REMOTE SERVER! 
 // app.listen(4000, "0.0.0.0", () => {
 //    console.log("Running on port 4000 , 0.0.0.0")
 // })

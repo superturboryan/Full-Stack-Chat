@@ -23,6 +23,7 @@ class UnconnectedApp extends Component {
                <ChatMessages />
                <ChatForm />
                <button onClick={this.handleDelete}> Delete my messages! </button>
+               <button onClick={this.handleDeleteAllMessages}> Delete all the messages! </button>
             </div>)
       }
       return (
@@ -47,6 +48,10 @@ class UnconnectedApp extends Component {
          method: "GET",
          credentials: "include"
       })
+   }
+
+   handleDeleteAllMessages = () => {
+      fetch(ipAddress + "/clear-all-messages")
    }
 
    checkLoggedInStatus = () => {
