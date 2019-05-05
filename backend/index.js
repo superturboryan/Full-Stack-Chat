@@ -4,8 +4,21 @@ let multer = require("multer")
 let upload = multer()
 let app = express()
 let cookieParser = require('cookie-parser')
+const MongoClient = require("mongodb").MongoClient;
+
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
+app.use(cors({ credentials: true, origin: "http://0.0.0.0:3000/" }))
+// app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
+
+let url = "mongodb+srv://admin:Ryanu1123@cluster0-nswep.mongodb.net/test?retryWrites=true"
+
+let chatDB
+let messagesCollection
+
+MongoClient.connect(url, (err, allDbs) => {
+   chatDB = allDbs.db("Chat-DB")
+   messagesCollection = chatDB.collection("Messages")
+})
 
 let passwords = {}
 let sessions = {}
@@ -72,6 +85,12 @@ app.post("/newmessage", upload.none(), (req, res) => {
    console.log("new message", newMsg)
    messages = messages.concat(newMsg)
    console.log("updated messages", messages)
+
+   messagesCollection.insertOne(newMsg, (err, results) => {
+      if (err) throw err;
+      console.log("Successfully inserted messages into collection in remote database!")
+   })
+
    res.send(JSON.stringify({ success: true }))
 })
 
@@ -111,8 +130,12 @@ app.post("/signup", upload.none(), (req, res) => {
 })
 
 
-app.listen(4000, "0.0.0.0", () => {
-   console.log("Running on port 4000 , 0.0.0.0")
+// app.listen(4000, "0.0.0.0", () => {
+//    console.log("Running on port 4000 , 0.0.0.0")
+// })
+
+app.listen(4000, () => {
+   console.log("Running on port 4000")
 })
 
 let generateId = () => {
