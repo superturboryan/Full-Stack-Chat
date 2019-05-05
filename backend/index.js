@@ -53,10 +53,19 @@ app.get("/messages", function (req, res) {
    if (sessions[sessionId] === undefined) {
       res.send(JSON.stringify("Intruder detected - ACCESS DENIED!"))
    }
-   //Get only the last twenty messages
-   let response = messages.slice(-20)
 
-   res.send(JSON.stringify(response))
+   messagesCollection.find({}).toArray((err, result) => {
+      if (err) throw err;
+
+      console.log("Messages from db: ", result)
+
+      res.send(JSON.stringify(result))
+   })
+
+   //Get only the last twenty messages
+   // let response = messages.slice(-20)
+
+   // res.send(JSON.stringify(response))
 })
 
 app.get("/delete-messages", function (req, res) {
