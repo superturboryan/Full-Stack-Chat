@@ -67,15 +67,13 @@ app.get("/messages", function (req, res) {
 
    messagesCollection.find({}).toArray((err, result) => {
       if (err) throw err;
-
-      console.log("Messages from db: ", result)
-
+      // console.log("Messages from db: ", result)
       res.send(JSON.stringify(result.slice(-20)))
    })
 
+   //GET MESSAGES FROM LOCAL SERVER MESSAGES OBJECT
    //Get only the last twenty messages
    // let response = messages.slice(-20)
-
    // res.send(JSON.stringify(response))
 })
 
@@ -164,8 +162,14 @@ app.post("/signup", upload.none(), (req, res) => {
       res.send(JSON.stringify({ success: false }))
       return
    }
-   console.log("passwords object", passwords)
-   passwords[username] = enteredPassword
+   //ADD VALUE TO LOCAL PASSWORDS OBJECT
+   // passwords[username] = enteredPassword
+
+   //ADD ENTRY TO PASSWORDS COLLECTION IN REMOTE DB
+   passwordsCollection.insert({ username: username, password: enteredPassword }, (err, result) => {
+      if (err) throw err;
+      console.log("Successfully added entry to passwords collection in remote database!")
+   })
    res.send(JSON.stringify({ success: true }))
 })
 
