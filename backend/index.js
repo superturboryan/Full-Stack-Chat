@@ -16,13 +16,18 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }))
 
 let url = "mongodb+srv://admin:Ryanu1123@cluster0-nswep.mongodb.net/test?retryWrites=true"
 
+//Database variables 
 let chatDB
 let messagesCollection
+let passwordsCollection
+let sessionsCollection
 
 MongoClient.connect(url, (err, allDbs) => {
    if (err) throw err;
    chatDB = allDbs.db("Chat-DB")
    messagesCollection = chatDB.collection("Messages")
+   passwordsCollection = chatDB.collection("Passwords")
+   sessionsCollection = chatDB.collection("Sessions")
 })
 
 let passwords = {}
@@ -59,7 +64,7 @@ app.get("/messages", function (req, res) {
 
       console.log("Messages from db: ", result)
 
-      res.send(JSON.stringify(result))
+      res.send(JSON.stringify(result.slice(-20)))
    })
 
    //Get only the last twenty messages
@@ -87,20 +92,25 @@ app.post("/newmessage", upload.none(), (req, res) => {
    console.log("username", username)
    let msg = req.body.msg
    let timeStamp = req.body.timeStamp
-
-   //Check is message type is login or not
+   //Check is message type is login or not, make username SYSTEM
    if (req.body.type === "login") {
       let newMsg = { message: msg, timeStamp: timeStamp, username: "SYSTEM" }
       messages = messages.concat(newMsg)
+      //Insert into DB!
+      messagesCollection.insertOne(newMsg, (err, result) => {
+         if (err) throw err;
+         console.log("Successfully inserted messages into collection in remote database!")
+      })
       res.send(JSON.stringify({ success: true }))
       return
    }
+   //If not then username is taken from sessions object!
    let newMsg = { username: username, message: msg, timeStamp: timeStamp }
    console.log("new message", newMsg)
    messages = messages.concat(newMsg)
    console.log("updated messages", messages)
    //Insert into DB!
-   messagesCollection.insertOne(newMsg, (err, results) => {
+   messagesCollection.insertOne(newMsg, (err, result) => {
       if (err) throw err;
       console.log("Successfully inserted messages into collection in remote database!")
    })
@@ -119,7 +129,13 @@ app.post("/login", upload.none(), (req, res) => {
       console.log("password matches")
       let sessionId = generateId()
       console.log("generated id", sessionId)
+      //Add to local sessions object
       sessions[sessionId] = username
+      //Add to remote sessions collection
+      sessionsCollection.insertOne({ sessionId: sessionId, username: username }, (err, result) => {
+         if (err) throw err;
+         console.log("Successfully inserted sessionID and username into remote database!")
+      })
       res.cookie('sid', sessionId);
       res.send(JSON.stringify({ success: true }))
       return
