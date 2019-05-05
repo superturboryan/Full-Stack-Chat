@@ -7,7 +7,8 @@ module.exports = {
       path: path.join(__dirname, "build"),
    },
    devServer: {
-      host: "0.0.0.0",
+      //Use the host header when running from droplet!
+      // host: "0.0.0.0",
       port: 3000,
       overlay: {
          warnings: true,

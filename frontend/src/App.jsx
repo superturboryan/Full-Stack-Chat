@@ -9,9 +9,11 @@ import { ipAddress } from './data.js'
 
 class UnconnectedApp extends Component {
 
-   render = () => {
-
+   componentDidMount = () => {
       this.checkLoggedInStatus()
+   }
+
+   render = () => {
 
       if (this.props.loggedInProp) {
          return (

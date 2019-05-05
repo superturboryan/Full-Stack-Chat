@@ -1,3 +1,5 @@
+//Change webpack.config host back to 0.0.0.0 before pushing so it can be run from droplet !
+
 let express = require("express")
 let cors = require("cors")
 let multer = require("multer")
@@ -7,8 +9,10 @@ let cookieParser = require('cookie-parser')
 const MongoClient = require("mongodb").MongoClient;
 
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://0.0.0.0:3000/" }))
-app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
+//Config for local cors
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }))
+//Config for remote server cors
+// app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
 
 let url = "mongodb+srv://admin:Ryanu1123@cluster0-nswep.mongodb.net/test?retryWrites=true"
 
@@ -86,7 +90,7 @@ app.post("/newmessage", upload.none(), (req, res) => {
    console.log("new message", newMsg)
    messages = messages.concat(newMsg)
    console.log("updated messages", messages)
-
+   //Insert into DB!
    messagesCollection.insertOne(newMsg, (err, results) => {
       if (err) throw err;
       console.log("Successfully inserted messages into collection in remote database!")
