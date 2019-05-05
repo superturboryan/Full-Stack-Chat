@@ -8,7 +8,7 @@ const MongoClient = require("mongodb").MongoClient;
 
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "http://0.0.0.0:3000/" }))
-// app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
+app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
 
 let url = "mongodb+srv://admin:Ryanu1123@cluster0-nswep.mongodb.net/test?retryWrites=true"
 
