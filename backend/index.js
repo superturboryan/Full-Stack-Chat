@@ -119,44 +119,46 @@ app.post("/newmessage", upload.none(), (req, res) => {
    let msg = req.body.msg
    let timeStamp = req.body.timeStamp
 
-   // let newMsg
-   // sessionsCollection.find({ sessionId: sessionId }).toArray((err, result) => {
-   //    if (err) throw err;
-   //    username = result[0].username
-   //    newMsg = { username: username, message: msg, timeStamp: timeStamp }
-   // })
-   // messagesCollection.insertOne(newMsg, (err, result) => {
-   //    if (err) throw err;
-   //    console.log("DB: Successfully added entry to messages collection in remote database!")
-   // })
-
-   console.log("username", username)
-
-   //Check is message type is login or not, make username SYSTEM
-   if (req.body.type === "login") {
-      let newMsg = { message: msg, timeStamp: timeStamp, username: "SYSTEM" }
-      //Insert into local object!
-      messages = messages.concat(newMsg)
-      //Insert into DB!
+   let newMsg
+   sessionsCollection.find({ sessionId: sessionId }).toArray((err, result) => {
+      if (err) throw err;
+      username = result[0].username
+      newMsg = { username: username, message: msg, timeStamp: timeStamp }
       messagesCollection.insertOne(newMsg, (err, result) => {
          if (err) throw err;
          console.log("DB: Successfully added entry to messages collection in remote database!")
+         res.send(JSON.stringify({ success: true }))
       })
-      res.send(JSON.stringify({ success: true }))
-      return
-   }
-   //If not then username is taken from sessions object!
-   let newMsg = { username: username, message: msg, timeStamp: timeStamp }
-   console.log("new message", newMsg)
-   messages = messages.concat(newMsg)
-   console.log("updated messages", messages)
-   //Insert into DB!
-   messagesCollection.insertOne(newMsg, (err, result) => {
-      if (err) throw err;
-      console.log("DB: Successfully inserted messages into collection in remote database!")
    })
 
-   res.send(JSON.stringify({ success: true }))
+
+   // console.log("username", username)
+
+   // //Check is message type is login or not, make username SYSTEM
+   // if (req.body.type === "login") {
+   //    let newMsg = { message: msg, timeStamp: timeStamp, username: "SYSTEM" }
+   //    //Insert into local object!
+   //    messages = messages.concat(newMsg)
+   //    //Insert into DB!
+   //    messagesCollection.insertOne(newMsg, (err, result) => {
+   //       if (err) throw err;
+   //       console.log("DB: Successfully added entry to messages collection in remote database!")
+   //    })
+   //    res.send(JSON.stringify({ success: true }))
+   //    return
+   // }
+   // //If not then username is taken from sessions object!
+   // let newMsg = { username: username, message: msg, timeStamp: timeStamp }
+   // console.log("new message", newMsg)
+   // messages = messages.concat(newMsg)
+   // console.log("updated messages", messages)
+   // //Insert into DB!
+   // messagesCollection.insertOne(newMsg, (err, result) => {
+   //    if (err) throw err;
+   //    console.log("DB: Successfully inserted messages into collection in remote database!")
+   // })
+
+   // res.send(JSON.stringify({ success: true }))
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/login", upload.none(), (req, res) => {
@@ -227,12 +229,11 @@ app.post("/signup", upload.none(), (req, res) => {
    //    res.send(JSON.stringify({ success: false }))
    //    return
    // }
-
    //ADD VALUE TO LOCAL PASSWORDS OBJECT
    // passwords[username] = enteredPassword
-
 })
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //USE WITH REMOTE SERVER! 
 // app.listen(4000, "0.0.0.0", () => {
 //    console.log("Running on port 4000 , 0.0.0.0")
