@@ -31,7 +31,6 @@ MongoClient.connect(url, (err, allDbs) => {
    sessionsCollection = chatDB.collection("Sessions")
 })
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/signout", function (req, res) {
 
@@ -47,12 +46,23 @@ app.get("/check-logged-in-status", function (req, res) {
 
    console.log("This is the current cookie", req.cookies.sid ? req.cookies.sid : "NO COOKIE")
    //Check if cookie being sent is part of sessions object
-   if (sessions[req.cookies.sid] !== undefined) {
-      res.send(JSON.stringify({ success: true, user: sessions[req.cookies.sid] }))
-      return
-   }
+   // if (sessions[req.cookies.sid] !== undefined) {
+   //    res.send(JSON.stringify({ success: true, user: sessions[req.cookies.sid] }))
+   //    return
+   // }
+   //CHECK IN DATABASE IF SESSION ID EXISTS
+   sessionsCollection.find({ sessionId: req.cookies.sid }).toArray((err, result) => {
+      if (result[0] !== undefined) {
+         console.log("AUTO LOGIN!")
+         res.send(JSON.stringify({ success: true, user: result[0].username }))
+         return
+      }
+      else {
+         res.send(JSON.stringify({ success: false }))
+      }
+   })
 
-   res.send(JSON.stringify({ success: false }))
+
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/messages", function (req, res) {
@@ -188,14 +198,7 @@ app.post("/signup", upload.none(), (req, res) => {
       })
       res.send(JSON.stringify({ success: true }))
    })
-   //CHECK LOCAL PASSWORDS OBJECT TO SEE IF USERNAME IS ALREADY TAKEN
-   // if (passwords[username] !== undefined) {
-   //    console.log("Username already taken!")
-   //    res.send(JSON.stringify({ success: false }))
-   //    return
-   // }
-   //ADD VALUE TO LOCAL PASSWORDS OBJECT
-   // passwords[username] = enteredPassword
+
 })
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
