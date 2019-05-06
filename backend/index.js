@@ -31,15 +31,10 @@ MongoClient.connect(url, (err, allDbs) => {
    sessionsCollection = chatDB.collection("Sessions")
 })
 
-let passwords = {}
-let sessions = {}
-let messages = []
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/signout", function (req, res) {
-   //Remove sessionID from local sessions object
-   console.log("Deleting cookie from sessions object:", req.cookies.sid)
-   delete sessions[req.cookies.sid]
+
    //Remove entry from sessions collection in db
    sessionsCollection.deleteOne({ sessionId: req.cookies.sid }, (err, result) => {
       if (err) throw err;
@@ -80,15 +75,6 @@ app.get("/messages", function (req, res) {
       res.send(JSON.stringify(result.slice(-20)))
    })
 
-   //CHECK LOCAL SESSIONS OBJECT TO SEE IF SESSION ID EXISTS   
-   // if (sessions[sessionId] === undefined) {
-   //    res.send(JSON.stringify("Intruder detected - ACCESS DENIED!"))
-   // }
-
-   //GET MESSAGES FROM LOCAL SERVER MESSAGES OBJECT
-   //Get only the last twenty messages
-   // let response = messages.slice(-20)
-   // res.send(JSON.stringify(response))
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/delete-messages", function (req, res) {
@@ -112,18 +98,25 @@ app.get("/clear-all-messages", function (req, res) {
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/newmessage", upload.none(), (req, res) => {
-   console.log("*** inside new message") /
-      console.log("body", req.body)
    let sessionId = req.cookies.sid
-   let username = sessions[sessionId]
    let msg = req.body.msg
    let timeStamp = req.body.timeStamp
 
-   let newMsg
    sessionsCollection.find({ sessionId: sessionId }).toArray((err, result) => {
       if (err) throw err;
-      username = result[0].username
-      newMsg = { username: username, message: msg, timeStamp: timeStamp }
+      let username = result[0].username
+
+      if (req.body.type === "login") {
+         let newMsg = { username: "SYSTEM", message: msg, timeStamp: timeStamp }
+         messagesCollection.insertOne(newMsg, (err, result) => {
+            if (err) throw err;
+            console.log("DB: Successfully added entry to messages collection in remote database!")
+            res.send(JSON.stringify({ success: true }))
+         })
+         return
+      }
+
+      let newMsg = { username: username, message: msg, timeStamp: timeStamp }
       messagesCollection.insertOne(newMsg, (err, result) => {
          if (err) throw err;
          console.log("DB: Successfully added entry to messages collection in remote database!")
@@ -131,34 +124,6 @@ app.post("/newmessage", upload.none(), (req, res) => {
       })
    })
 
-
-   // console.log("username", username)
-
-   // //Check is message type is login or not, make username SYSTEM
-   // if (req.body.type === "login") {
-   //    let newMsg = { message: msg, timeStamp: timeStamp, username: "SYSTEM" }
-   //    //Insert into local object!
-   //    messages = messages.concat(newMsg)
-   //    //Insert into DB!
-   //    messagesCollection.insertOne(newMsg, (err, result) => {
-   //       if (err) throw err;
-   //       console.log("DB: Successfully added entry to messages collection in remote database!")
-   //    })
-   //    res.send(JSON.stringify({ success: true }))
-   //    return
-   // }
-   // //If not then username is taken from sessions object!
-   // let newMsg = { username: username, message: msg, timeStamp: timeStamp }
-   // console.log("new message", newMsg)
-   // messages = messages.concat(newMsg)
-   // console.log("updated messages", messages)
-   // //Insert into DB!
-   // messagesCollection.insertOne(newMsg, (err, result) => {
-   //    if (err) throw err;
-   //    console.log("DB: Successfully inserted messages into collection in remote database!")
-   // })
-
-   // res.send(JSON.stringify({ success: true }))
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/login", upload.none(), (req, res) => {
@@ -166,7 +131,7 @@ app.post("/login", upload.none(), (req, res) => {
    let username = req.body.username
    let enteredPassword = req.body.password
    let expectedPassword /* = passwords[username]*/
-
+   console.log(`Logging in user ${username}...`)
    //GET EXPECTED PASSWORD FROM REMOTE DATABASE
    passwordsCollection.find({ username: username }).toArray((err, result) => {
 
@@ -176,8 +141,8 @@ app.post("/login", upload.none(), (req, res) => {
          return
       }
 
-      console.log("Expected password: ", result[0].password)
-      console.log("Password entered: ", enteredPassword)
+      console.log("Expected password:", result[0].password)
+      console.log("Password entered:", enteredPassword)
 
       expectedPassword = result[0].password
       //CHECK THAT IT MATCHES PASSWORD SUPPLIED BY USER
@@ -204,13 +169,13 @@ app.post("/login", upload.none(), (req, res) => {
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/signup", upload.none(), (req, res) => {
+
    let username = req.body.username
    let enteredPassword = req.body.password
-
+   console.log(`Signing up new user ${username}...`)
    //CHECK REMOTE PASSWORDS COLLECTION TO SEE IF USERNAME IS ALREADY TAKEN
    passwordsCollection.find({ username: username }).toArray((err, result) => {
       if (err) throw err;
-      console.log("***RESULT: ", result)
       if (result[0] !== undefined) {
          console.log("Username already taken!")
          res.send(JSON.stringify({ success: false }))
