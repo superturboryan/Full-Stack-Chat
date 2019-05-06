@@ -167,8 +167,16 @@ app.post("/login", upload.none(), (req, res) => {
 
    //GET EXPECTED PASSWORD FROM REMOTE DATABASE
    passwordsCollection.find({ username: username }).toArray((err, result) => {
-      console.log("Password from searching password collection: ", result[0].password)
+
+      if (result[0] === undefined) {
+         console.log("User doesn't exist!")
+         res.send(JSON.stringify({ success: false }))
+         return
+      }
+
+      console.log("Expected password: ", result[0].password)
       console.log("Password entered: ", enteredPassword)
+
       expectedPassword = result[0].password
       //CHECK THAT IT MATCHES PASSWORD SUPPLIED BY USER
       if (enteredPassword !== expectedPassword) {
@@ -176,21 +184,20 @@ app.post("/login", upload.none(), (req, res) => {
          res.send(JSON.stringify({ success: false }))
          return
       }
+      let sessionId = generateId()
+
+      //Add to remote sessions collection
+      sessionsCollection.insertOne({ sessionId: sessionId, username: username }, (err, result) => {
+         if (err) throw err;
+         console.log("DB: Successfully added entry to sessions collection in remote database!")
+      })
+
+      //Add to local sessions object
+      //    sessions[sessionId] = username
+
+      res.cookie('sid', sessionId);
+      res.send(JSON.stringify({ success: true }))
    })
-
-   let sessionId = generateId()
-
-   //Add to remote sessions collection
-   sessionsCollection.insertOne({ sessionId: sessionId, username: username }, (err, result) => {
-      if (err) throw err;
-      console.log("DB: Successfully added entry to sessions collection in remote database!")
-   })
-
-   //Add to local sessions object
-   //    sessions[sessionId] = username
-
-   res.cookie('sid', sessionId);
-   res.send(JSON.stringify({ success: true }))
 
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,31 +206,31 @@ app.post("/signup", upload.none(), (req, res) => {
    let enteredPassword = req.body.password
 
    //CHECK REMOTE PASSWORDS COLLECTION TO SEE IF USERNAME IS ALREADY TAKEN
-   // passwordsCollection.find({ username: username }).toArray((err, result) => {
-   //    if (err) throw err;
-
-   //    if (result !== undefined) {
-   //       console.log("Username already taken!")
-   //       res.send(JSON.stringify({ success: false }))
-   //       return
-   //    }
-   // })
+   passwordsCollection.find({ username: username }).toArray((err, result) => {
+      if (err) throw err;
+      console.log("***RESULT: ", result)
+      if (result[0] !== undefined) {
+         console.log("Username already taken!")
+         res.send(JSON.stringify({ success: false }))
+         return
+      }
+      //ADD ENTRY TO PASSWORDS COLLECTION IN REMOTE DB
+      passwordsCollection.insert({ username: username, password: enteredPassword }, (err, result) => {
+         if (err) throw err;
+         console.log("DB: Successfully added entry to passwords collection in remote database!")
+      })
+      res.send(JSON.stringify({ success: true }))
+   })
    //CHECK LOCAL PASSWORDS OBJECT TO SEE IF USERNAME IS ALREADY TAKEN
-   if (passwords[username] !== undefined) {
-      console.log("Username already taken!")
-      res.send(JSON.stringify({ success: false }))
-      return
-   }
+   // if (passwords[username] !== undefined) {
+   //    console.log("Username already taken!")
+   //    res.send(JSON.stringify({ success: false }))
+   //    return
+   // }
 
    //ADD VALUE TO LOCAL PASSWORDS OBJECT
-   passwords[username] = enteredPassword
+   // passwords[username] = enteredPassword
 
-   //ADD ENTRY TO PASSWORDS COLLECTION IN REMOTE DB
-   passwordsCollection.insert({ username: username, password: enteredPassword }, (err, result) => {
-      if (err) throw err;
-      console.log("DB: Successfully added entry to passwords collection in remote database!")
-   })
-   res.send(JSON.stringify({ success: true }))
 })
 
 //USE WITH REMOTE SERVER! 
