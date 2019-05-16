@@ -1,4 +1,6 @@
-//Change webpack.config host back to 0.0.0.0 before pushing so it can be run from droplet !
+//*************************************************************************************** */
+//Change webpack.config host back to 0.0.0.0 before pushing so it can be run from droplet ! 
+//*************************************************************************************** */
 
 let express = require("express")
 let cors = require("cors")
@@ -8,6 +10,10 @@ let app = express()
 let cookieParser = require('cookie-parser')
 const MongoClient = require("mongodb").MongoClient;
 
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+
+
 app.use(cookieParser());
 
 //Config for local cors
@@ -15,7 +21,7 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }))
 //Config for remote server cors
 // app.use(cors({ credentials: true, origin: "http://134.209.119.133:3000" }))
 
-let url = "mongodb+srv://admin:Ryanu1123@cluster0-nswep.mongodb.net/test?retryWrites=true"
+let url = "mongodb+srv://admin:12345@cluster0-nswep.mongodb.net/test?retryWrites=true"
 
 //Database variables 
 let chatDB
@@ -41,15 +47,11 @@ app.get("/signout", function (req, res) {
    })
    res.send(JSON.stringify({ success: false }))
 })
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/check-logged-in-status", function (req, res) {
 
    console.log("This is the current cookie", req.cookies.sid ? req.cookies.sid : "NO COOKIE")
-   //Check if cookie being sent is part of sessions object
-   // if (sessions[req.cookies.sid] !== undefined) {
-   //    res.send(JSON.stringify({ success: true, user: sessions[req.cookies.sid] }))
-   //    return
-   // }
    //CHECK IN DATABASE IF SESSION ID EXISTS
    sessionsCollection.find({ sessionId: req.cookies.sid }).toArray((err, result) => {
       if (result[0] !== undefined) {
@@ -61,8 +63,6 @@ app.get("/check-logged-in-status", function (req, res) {
          res.send(JSON.stringify({ success: false }))
       }
    })
-
-
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/messages", function (req, res) {
@@ -94,7 +94,6 @@ app.get("/delete-messages", function (req, res) {
    messages = messages.filter(message => {
       return message.username !== currentUsername
    })
-
    res.send(JSON.stringify({ success: true }))
 })
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +149,6 @@ app.post("/login", upload.none(), (req, res) => {
          res.send(JSON.stringify({ success: false }))
          return
       }
-
       console.log("Expected password:", result[0].password)
       console.log("Password entered:", enteredPassword)
 
@@ -161,22 +159,19 @@ app.post("/login", upload.none(), (req, res) => {
          res.send(JSON.stringify({ success: false }))
          return
       }
-      let sessionId = generateId()
 
+      let sessionId = generateId()
       //Add to remote sessions collection
       sessionsCollection.insertOne({ sessionId: sessionId, username: username }, (err, result) => {
          if (err) throw err;
          console.log("DB: Successfully added entry to sessions collection in remote database!")
       })
 
-      //Add to local sessions object
-      //    sessions[sessionId] = username
-
       res.cookie('sid', sessionId);
       res.send(JSON.stringify({ success: true }))
    })
-
 })
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/signup", upload.none(), (req, res) => {
 
@@ -198,8 +193,55 @@ app.post("/signup", upload.none(), (req, res) => {
       })
       res.send(JSON.stringify({ success: true }))
    })
+})
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SOCKET IO STUFF
+
+io.on("connection", socket => {
+
+   console.log("Socket: Connected to client")
+
+   const sessionId = socket.request.headers.cookie.sid
+   console.log("Socket: Cookie from client request", sessionId)
+
+   socket.on("send-new-message", newMessage => {
+
+      // sessionsCollection.find({ sessionId: sessionId }).toArray((err, result) => {
+      //    if (err) throw err;
+      //    let username = result[0].username
+
+      //    if (req.body.type === "login") {
+
+      //       let newMsg = { username: "SYSTEM", message: newMessage, timeStamp: timeStamp }
+
+      //       messagesCollection.insertOne(newMsg, (err, result) => {
+      //          if (err) throw err;
+      //          console.log("DB: Successfully added entry to messages collection in remote database!")
+      //       })
+      //       return
+      //    }
+
+      let newMsg = { username: "socket", message: newMessage, timeStamp: "12:00:00" /*timeStamp*/ }
+      messagesCollection.insertOne(newMsg, (err, result) => {
+         if (err) throw err;
+         console.log("DB: Successfully added entry to messages collection in remote database!")
+
+         messagesCollection.find().toArray((err, result) => {
+            if (err) throw err;
+            io.emit("new-messages", result)
+         })
+      })
+      // })
+   })
+
+   socket.on("disconnect", () => {
+      console.log("Socket: Client disconnected")
+   })
 
 })
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //USE WITH REMOTE SERVER! 
@@ -208,7 +250,7 @@ app.post("/signup", upload.none(), (req, res) => {
 // })
 
 //USE WITH LOCAL SERVER!
-app.listen(4000, () => {
+http.listen(4000, () => {
    console.log("Running on port 4000")
 })
 

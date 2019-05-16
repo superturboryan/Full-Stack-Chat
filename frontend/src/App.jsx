@@ -5,6 +5,8 @@ import Signup from './Signup.jsx'
 import ChatMessages from './ChatMessages.jsx'
 import ChatForm from './ChatForm.jsx'
 
+import socket from "./SocketSettings.jsx"
+
 import { ipAddress } from './data.js'
 
 class UnconnectedApp extends Component {

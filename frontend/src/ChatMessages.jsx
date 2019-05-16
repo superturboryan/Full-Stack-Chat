@@ -3,32 +3,51 @@ import { connect } from "react-redux"
 
 import { ipAddress } from './data.js'
 
+import socket from "./SocketSettings.jsx"
+
 let updater;
 
 class UnconnectedChatMessages extends Component {
 
    componentDidMount = () => {
 
-      let updater = () => {
+      //Fetch on interval to retrieve messages
 
-         fetch(ipAddress + "/messages", {
-            method: "GET",
-            credentials: "include"
+      // let updater = () => {
+
+      //    fetch(ipAddress + "/messages", {
+      //       method: "GET",
+      //       credentials: "include"
+      //    })
+      //       .then(response => { return response.text() })
+      //       .then(responseBody => {
+      //          // console.log("response from messages", responseBody)
+      //          let parsed = JSON.parse(responseBody)
+      //          // console.log("parsed", parsed)
+
+      //          this.props.dispatch({
+      //             type: "set-messages",
+      //             messages: parsed
+      //          })
+      //       })
+      // }
+
+      // this.updateInterval = setInterval(updater, 500)
+
+      //Socket IO retrieving messages 
+
+      socket.open()
+
+      socket.on("new-messages", messages => {
+         console.log("Socket: Receiving messages from server: ", messages)
+         this.props.dispatch({
+            type: "set-messages",
+            messages: messages
          })
-            .then(response => { return response.text() })
-            .then(responseBody => {
-               // console.log("response from messages", responseBody)
-               let parsed = JSON.parse(responseBody)
-               // console.log("parsed", parsed)
+      })
 
-               this.props.dispatch({
-                  type: "set-messages",
-                  messages: parsed
-               })
-            })
-      }
 
-      this.updateInterval = setInterval(updater, 500)
+
    }
 
    componentWillUnmount = () => {
@@ -37,6 +56,7 @@ class UnconnectedChatMessages extends Component {
    }
 
    render = () => {
+
       let msgToElement = e => (
          <li>
             <div>{e.username}:</div>
@@ -51,6 +71,11 @@ class UnconnectedChatMessages extends Component {
             <ul>{this.props.messages.map(msgToElement)}</ul>
          </div>)
    }
+
+   componentWillUnmount = () => {
+      socket.close()
+   }
+
 }
 let mapStateToProps = state => {
    return {
@@ -58,6 +83,8 @@ let mapStateToProps = state => {
       loggedInProp: state.loggedIn
    }
 }
+
+
 
 let Chat = connect(mapStateToProps)(UnconnectedChatMessages)
 

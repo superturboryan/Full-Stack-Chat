@@ -23,6 +23,7 @@ class UnconnectedLogin extends Component {
       let data = new FormData()
       data.append("username", this.state.username)
       data.append("password", this.state.password)
+
       fetch(ipAddress + "/login", {
          method: "POST",
          body: data,

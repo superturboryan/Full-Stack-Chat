@@ -2,11 +2,17 @@ import React, { Component } from "react"
 
 import { ipAddress } from './data.js'
 
+import socket from "./SocketSettings.jsx"
+
 class ChatForm extends Component {
 
    constructor(props) {
       super(props)
       this.state = { message: "" }
+   }
+
+   componentDidMount = () => {
+      socket.open()
    }
 
    handleMessageChange = event => {
@@ -22,11 +28,14 @@ class ChatForm extends Component {
       data.append("type", "regular")
       let time = new Date().toLocaleTimeString()
       data.append("timeStamp", time)
-      fetch(ipAddress + "/newmessage", {
-         method: "POST",
-         body: data,
-         credentials: "include"
-      })
+      // fetch(ipAddress + "/newmessage", {
+      //    method: "POST",
+      //    body: data,
+      //    credentials: "include"
+      // })
+
+      socket.emit("send-new-message", this.state.message)
+
       this.setState({ message: "" })
    }
 
